@@ -25,4 +25,6 @@ clean:
 	$(RM) -r $(OBJ_DIR)
 	$(RM) $(TARGET_EXEC)
 
+update: clean $(TARGET_EXEC)
+
 MKDIR_P ?= mkdir -p

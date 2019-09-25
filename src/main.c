@@ -4,11 +4,18 @@
 
 int main(void) {
 
-    InitSPI();
+	char toSend[8] = {5, 6, 7, 8, 9, 10, 11, 12};
 
-    //TODO
+	if (InitSPI() == 0) {
+		return EXIT_FAILURE;
+	}
+
+	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
+	SendFrame(1, 8, toSend, 8);
+	bcm2835_spi_chipSelect(BCM2835_SPI_CS1);
+	SendFrame(1, 8, toSend, 8);
 
     DeinitSPI();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
