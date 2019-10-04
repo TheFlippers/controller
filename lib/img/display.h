@@ -23,9 +23,19 @@ typedef struct {
 	DisplayNode* root;
 } DisplayList;
 
+typedef struct {
+	int width;
+	int height;
+	uint8_t** dispIds;
+} DisplayGrid;
+
 Display* CreateDisplay(Neighbors* data);
 DisplayList* CreateList();
-void InsertDisplay(DisplayList* list, Display* disp);
+int InsertDisplay(DisplayList* list, Display* disp);
 void FreeList(DisplayList* list);
+Display* FindScreenSize(DisplayList* list, int* width, int* height);
+DisplayGrid* CreateDisplayGrid(DisplayList* list);
+void FreeDisplayGrid(DisplayGrid* grid);
+
 
 #endif // __DISPLAY_H__

@@ -38,7 +38,7 @@ DisplayList* CreateList() {
 	return list;
 }
 
-void InsertDisplay(DisplayList* list, Display* disp) {
+int InsertDisplay(DisplayList* list, Display* disp) {
 
 	DisplayNode* new = NULL;
 	DisplayNode* curr = NULL;
@@ -47,7 +47,7 @@ void InsertDisplay(DisplayList* list, Display* disp) {
 	new = malloc(sizeof(*new));
 	if (new == NULL) {
 		fprintf(stderr, "ERROR: Could not allocate memory!\n");
-		return;
+		return -1;
 	}
 
 	// Initialize list node
@@ -63,10 +63,12 @@ void InsertDisplay(DisplayList* list, Display* disp) {
 		for (int i = 0; i < NUM_NEIGHBORS; i++) {
 			if (disp->neighborIds[i] = curr->disp->id) {
 				disp->neighborDisps[i] = curr->disp;
-				// TODO: set neighbor's neighbor to new display
+				curr->disp->neighborDisps[NUM_NEIGHBORS - i - 1] = disp;
 			}
 		}
 	}
+
+	return 0;
 }
 
 void FreeList(DisplayList* list) {
@@ -83,4 +85,110 @@ void FreeList(DisplayList* list) {
 		curr = next;
 	}
 	free(list);
+}
+
+Display* FindScreenSize(DisplayList* list, int* width, int* height) {
+
+	Display* curr = NULL;
+	Display* corner = NULL;
+	int count = 0;
+
+	// Check screen exists
+	if (list->root == NULL) {
+		fprintf(stderr, "ERROR: Screen contains no displays!\n");
+		return NULL;
+	}
+	curr = list->root->disp;
+
+	// Traverse grid starting at root to lower left corner
+	while (curr->neighborDisps[SOUTH] != NULL) {
+		curr = curr->neighborDisps[SOUTH];
+	}
+	while (curr->neighborDisps[WEST] != NULL) {
+		curr = curr->neighborDisps[WEST];
+	}
+	corner = curr;
+	
+	// Move across display to measure width
+	while (curr != NULL) {
+		count++;
+		curr = curr->neighborDisps[EAST];
+	}
+	*width = count;
+
+	// Return to corner
+	count = 0;
+	curr = corner;
+
+	// Move across display to measure width
+	while (curr != NULL) {
+		count++;
+		curr = curr->neighborDisps[NORTH];
+	}
+	*height = count;
+
+	return corner;
+}
+
+DisplayGrid* CreateDisplayGrid(DisplayList* list) {
+
+	DisplayGrid* screen = NULL;
+	Display* curr = NULL;
+	Display* corner = NULL;
+
+	// Allocate memory for screen
+	screen = malloc(sizeof(*screen));
+	if (screen == NULL) {
+		fprintf(stderr, "ERROR: Could not allocate memory!\n");
+		return screen;
+	}
+
+	// Calculate size of screen
+	corner = FindScreenSize(list, &(screen->width), &(screen->height));
+
+	// Allocate memory for display rows
+	screen->dispIds = malloc(sizeof(*(screen->dispIds)) * screen->width);
+	if (screen->dispIds == NULL) {
+		fprintf(stderr, "ERROR: Could not allocate memory!\n");
+		free(screen);
+		return NULL;
+	}
+
+	// Allocate memory for display columns
+	for (int x = 0; x < screen->width; x++) {
+		screen->dispIds[x] = malloc(sizeof(*(screen->dispIds[x])) * screen->height);
+		if (screen->dispIds[x] = NULL) {
+			fprintf(stderr, "ERROR: Could not allocate memory!\n");
+			for (int i = 0; i < x; i++) {
+				free(screen->dispIds[i]);
+			}
+			free(screen->dispIds);
+			free(screen);
+			return NULL;
+		}
+	}
+
+	// Traverse displays to find ID values
+	for (int x = 0; x < screen->width; x++) {
+		curr = corner;
+		for (int y = 0; y < screen->height; y++) {
+			screen->dispIds[x][y] = curr->id; 
+			curr = curr->neighborDisps[NORTH];
+		}
+		corner = corner->neighborDisps[EAST];
+	}
+
+	return screen;
+}
+
+void FreeDisplayGrid(DisplayGrid* grid) {
+
+	// Free columns
+	for (int x = 0; x < grid->width; x++) {
+		free(grid->dispIds[x]);
+	}
+
+	// Free remaining memory
+	free(grid->dispIds);
+	free(grid);
 }

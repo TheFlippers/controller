@@ -11,6 +11,8 @@
 #define GP_BITSHIFT 7
 #define NEIGHBOR_FRAME_LEN 6
 
+// TODO: implement method of saving ids for each channel
+
 enum FrameType {
 	POST = 0,
 	GET = 1
@@ -25,12 +27,11 @@ enum PostPIDs {
 	POST_PIXEL_DATA = 1
 };
 
-// TODO: reorder directions for smarter iteration
 enum Directions {
 	NORTH = 0,
 	EAST = 1,
-	SOUTH = 2,
-	WEST = 3
+	WEST = 2,
+	SOUTH = 3
 };
 
 typedef struct {

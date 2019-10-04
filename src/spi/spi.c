@@ -17,7 +17,7 @@ int InitSPI() {
 	// Set SPI parameters
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);
-    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16);
+    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_128);
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS1, LOW);
 
@@ -117,8 +117,11 @@ Neighbors* FindNeighborData(uint8_t channel) {
 	buf = ReadResponse(NEIGHBOR_FRAME_LEN);
 
 	// Copy data to output structure
-	// TODO: update copying of data for better ordering
-	memcpy(out, (buf + 1), (NEIGHBOR_FRAME_LEN - 1));
+	out->id = buf[0];
+	out->neighbors[NORTH] = buf[1];
+	out->neighbors[EAST] = buf[2];
+	out->neighbors[WEST] = buf[3];
+	out->neighbors[SOUTH] = buf[4];
 	free(buf);
 
 	return out;
