@@ -15,7 +15,7 @@ int InitSPI() {
     }
 
 	// Set SPI parameters
-    bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_LSBFIRST);
+    bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);
     bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16);
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);
@@ -48,16 +48,20 @@ int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
 	header = pid;
 
 	// Add Get/Post bit to header
-	header &= 254;
-	header |= gpBit & 1;
+	header &= HEADER_BITMASK;
+	header |= (gpBit & GP_BITMASK) << GP_BITSHIFT;
 
 	// buffer frame data
 	buf[0] = header;
-	memcpy((buf + 1), data, len);
+	if (len > 0 && data != NULL) {
+		memcpy((buf + 1), data, len);
+	}
 	frameLen = len + 1;
 
 	// Transmit frame
 	bcm2835_spi_transfern(buf, frameLen);
+
+	free(buf);
 
 	return 0;
 }
@@ -82,10 +86,40 @@ char* ReadResponse(int len) {
 	return buf;
 }
 
-void PostPixelData(char* pixels) {
+void SendPixelData(uint8_t channel, char* pixels, size_t len) {
 
+	
+	// Select desired SPI slave channel
+	bcm2835_spi_chipSelect(channel);
+
+	// Send frame with header information
+	SendFrame(POST, POST_PIXEL_DATA, pixels, len);
 }
 
-Neighbors* GetNeighborData(uint8_t channel) {
-	return NULL;
+Neighbors* FindNeighborData(uint8_t channel) {
+
+	char* buf = NULL;
+	Neighbors* out = NULL;
+
+	// Create neigbor data structure
+	out = malloc(sizeof(*out));
+	if (out == NULL) {
+		fprintf(stderr, "ERROR: Could not allocate memory!\n");
+		return out;
+	}
+	// Select desired SPI slave channel
+	bcm2835_spi_chipSelect(channel);
+
+	// Send get request to slave
+	SendFrame(GET, GET_NEIGHBOR_DATA, buf, 0);
+
+	// Read neighbor data from device
+	buf = ReadResponse(NEIGHBOR_FRAME_LEN);
+
+	// Copy data to output structure
+	// TODO: update copying of data for better ordering
+	memcpy(out, (buf + 1), (NEIGHBOR_FRAME_LEN - 1));
+	free(buf);
+
+	return out;
 }

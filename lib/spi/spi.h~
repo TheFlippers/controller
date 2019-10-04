@@ -6,9 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HEADER_BITMASK 127
+#define HEADER_BITMASK 254
 #define GP_BITMASK 1
-#define GP_BITSHIFT 7
 #define NEIGHBOR_FRAME_LEN 6
 
 enum FrameType {
@@ -25,17 +24,12 @@ enum PostPIDs {
 	POST_PIXEL_DATA = 1
 };
 
-// TODO: reorder directions for smarter iteration
-enum Directions {
-	NORTH = 0,
-	EAST = 1,
-	SOUTH = 2,
-	WEST = 3
-};
-
 typedef struct {
 	uint8_t id;
-	uint8_t neighbors[4];
+	uint8_t north;
+	uint8_t east;
+	uint8_t south;
+	uint8_t west;
 } Neighbors;
 
 int InitSPI();
