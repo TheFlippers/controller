@@ -21,6 +21,7 @@ typedef struct _DisplayNode {
 
 typedef struct {
 	DisplayNode* root;
+	int len;
 } DisplayList;
 
 typedef struct {

@@ -34,6 +34,7 @@ DisplayList* CreateList() {
 
 	// Initialize empty list
 	list->root = NULL;
+	list->len = 0;
 
 	return list;
 }
@@ -56,6 +57,7 @@ int InsertDisplay(DisplayList* list, Display* disp) {
 	// Add node to head of list
 	new->next = list->root;
 	list->root = new;
+	list->len += 1;
 
 	// Update display neighbors for members in list
 	curr = new->next;
@@ -66,6 +68,7 @@ int InsertDisplay(DisplayList* list, Display* disp) {
 				curr->disp->neighborDisps[NUM_NEIGHBORS - i - 1] = disp;
 			}
 		}
+		curr = curr->next;
 	}
 
 	return 0;
