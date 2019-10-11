@@ -60,15 +60,17 @@ int InsertDisplay(DisplayList* list, Display* disp) {
 	list->len += 1;
 
 	// Update display neighbors for members in list
-	curr = new->next;
-	while(curr != NULL) {
-		for (int i = 0; i < NUM_NEIGHBORS; i++) {
-			if (disp->neighborIds[i] = curr->disp->id) {
-				disp->neighborDisps[i] = curr->disp;
-				curr->disp->neighborDisps[NUM_NEIGHBORS - i - 1] = disp;
+	for (int i = 0; i < NUM_NEIGHBORS; i++) {
+		if (new->disp->neighborIds[i] != 0) {
+			curr = new->next;
+			while (curr != NULL) {
+				if (new->disp->neighborIds[i] == curr->disp->id) {
+					new->disp->neighborDisps[i] = curr->disp;
+					curr->disp->neighborDisps[NUM_NEIGHBORS - i - 1] = new->disp;
+				}
+				curr = curr->next;
 			}
 		}
-		curr = curr->next;
 	}
 
 	return 0;
@@ -103,9 +105,9 @@ Display* FindScreenSize(DisplayList* list, int* width, int* height) {
 	}
 	curr = list->root->disp;
 
-	// Traverse grid starting at root to lower left corner
-	while (curr->neighborDisps[SOUTH] != NULL) {
-		curr = curr->neighborDisps[SOUTH];
+	// Traverse grid starting at root to upper left corner
+	while (curr->neighborDisps[NORTH] != NULL) {
+		curr = curr->neighborDisps[NORTH];
 	}
 	while (curr->neighborDisps[WEST] != NULL) {
 		curr = curr->neighborDisps[WEST];
@@ -123,10 +125,10 @@ Display* FindScreenSize(DisplayList* list, int* width, int* height) {
 	count = 0;
 	curr = corner;
 
-	// Move across display to measure width
+	// Move across display to measure height
 	while (curr != NULL) {
 		count++;
-		curr = curr->neighborDisps[NORTH];
+		curr = curr->neighborDisps[SOUTH];
 	}
 	*height = count;
 
@@ -160,7 +162,7 @@ DisplayGrid* CreateDisplayGrid(DisplayList* list) {
 	// Allocate memory for display columns
 	for (int x = 0; x < screen->width; x++) {
 		screen->dispIds[x] = malloc(sizeof(*(screen->dispIds[x])) * screen->height);
-		if (screen->dispIds[x] = NULL) {
+		if (screen->dispIds[x] == NULL) {
 			fprintf(stderr, "ERROR: Could not allocate memory!\n");
 			for (int i = 0; i < x; i++) {
 				free(screen->dispIds[i]);
@@ -171,12 +173,13 @@ DisplayGrid* CreateDisplayGrid(DisplayList* list) {
 		}
 	}
 
+
 	// Traverse displays to find ID values
 	for (int x = 0; x < screen->width; x++) {
 		curr = corner;
 		for (int y = 0; y < screen->height; y++) {
 			screen->dispIds[x][y] = curr->id; 
-			curr = curr->neighborDisps[NORTH];
+			curr = curr->neighborDisps[SOUTH];
 		}
 		corner = corner->neighborDisps[EAST];
 	}

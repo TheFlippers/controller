@@ -60,7 +60,18 @@ void PrintDisplayList(DisplayList* list) {
 
 void PrintArray(char* data, int len) {
 	for (int i = 0; i < len; i++) {
-		printf("%02x\n", data[i]);
+		printf("%02x ", data[i]);
+	}
+	printf("\n");
+}
+
+void PrintDisplayGrid(DisplayGrid* grid) {
+	printf("Grid (width: %d, height: %d):\n", grid->width, grid->height);
+	for (int y = 0; y < grid->height; y++) {
+		for (int x = 0; x < grid->width; x++) {
+			printf("%d ", grid->dispIds[x][y]);
+		}
+		printf("\n\n");
 	}
 }
 
@@ -145,7 +156,7 @@ void TestCreateDisplayList(void) {
 	PrintDisplayList(list);
 
 	input.id = 1;
-	input.neighbors[NORTH] = 0;
+	input.neighbors[NORTH] = 3;
 	input.neighbors[EAST] = 2;
 	input.neighbors[WEST] = 0;
 	input.neighbors[SOUTH] = 0;
@@ -159,7 +170,7 @@ void TestCreateDisplayList(void) {
 	PrintDisplayList(list);
 
 	input.id = 2;
-	input.neighbors[NORTH] = 0;
+	input.neighbors[NORTH] = 4;
 	input.neighbors[EAST] = 0;
 	input.neighbors[WEST] = 1;
 	input.neighbors[SOUTH] = 0;
@@ -172,5 +183,94 @@ void TestCreateDisplayList(void) {
 	InsertDisplay(list, output);
 	PrintDisplayList(list);
 
+	input.id = 3;
+	input.neighbors[NORTH] = 5;
+	input.neighbors[EAST] = 4;
+	input.neighbors[WEST] = 0;
+	input.neighbors[SOUTH] = 1;
+
+	PrintNeighbors(&input);
+
+	output = CreateDisplay(&input);
+	PrintDisplay(output);
+
+	InsertDisplay(list, output);
+	PrintDisplayList(list);
+
+	input.id = 4;
+	input.neighbors[NORTH] = 6;
+	input.neighbors[EAST] = 0;
+	input.neighbors[WEST] = 3;
+	input.neighbors[SOUTH] = 2;
+
+	PrintNeighbors(&input);
+
+	output = CreateDisplay(&input);
+	PrintDisplay(output);
+
+	InsertDisplay(list, output);
+	PrintDisplayList(list);
+
+	input.id = 5;
+	input.neighbors[NORTH] = 0;
+	input.neighbors[EAST] = 6;
+	input.neighbors[WEST] = 0;
+	input.neighbors[SOUTH] = 3;
+
+	PrintNeighbors(&input);
+
+	output = CreateDisplay(&input);
+	PrintDisplay(output);
+
+	InsertDisplay(list, output);
+	PrintDisplayList(list);
+
+	input.id = 6;
+	input.neighbors[NORTH] = 0;
+	input.neighbors[EAST] = 0;
+	input.neighbors[WEST] = 5;
+	input.neighbors[SOUTH] = 4;
+
+	PrintNeighbors(&input);
+
+	output = CreateDisplay(&input);
+	PrintDisplay(output);
+
+	InsertDisplay(list, output);
+	PrintDisplayList(list);
+
 	FreeList(list);
+}
+
+void TestCreateDisplayGrid(int w, int h) {
+
+	int id = 1;
+
+	Neighbors input;
+	Display* output;
+	DisplayList* list;
+	DisplayGrid* screen;
+
+	list = CreateList();
+
+	for (int x = 0; x < w; x++) {
+		for (int y = 0; y < h; y++) {
+			input.id = id;
+			input.neighbors[NORTH] = (id - w > 0) ? id - w : 0;
+			input.neighbors[EAST] = (id % w != 0) ? id + 1 : 0;
+			input.neighbors[WEST] = (id % w != 1) ? id - 1 : 0;
+			input.neighbors[SOUTH] = (id + w <= w * h) ? id + w : 0;
+
+			output = CreateDisplay(&input);
+			InsertDisplay(list, output);
+
+			id++;
+		}
+	}
+
+	screen = CreateDisplayGrid(list);
+	PrintDisplayGrid(screen);
+
+	FreeList(list);
+	FreeDisplayGrid(screen);
 }

@@ -12,11 +12,12 @@
 int main(int argc, char* argv[]) {
 
 	#ifdef DEBUG
-	TestSPITransfer();
+	//TestSPITransfer();
 	//TestSPISend();
 	//TestSPIRead();
 	//TestCreateDisplay();
 	//TestCreateDisplayList();
+	TestCreateDisplayGrid(2, 4);
 	#endif // DEBUG
 
     return EXIT_SUCCESS;
