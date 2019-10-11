@@ -1,6 +1,6 @@
 TARGET_EXEC ?= fdd
 
-LIBS ?= wiringPi bcm2835
+LIBS ?= wiringPi bcm2835 png
 
 OBJ_DIR ?= ./obj
 SRC_DIR ?= ./src
