@@ -75,6 +75,16 @@ void PrintDisplayGrid(DisplayGrid* grid) {
 	}
 }
 
+void PrintPixels(char* pixels) {
+	printf("Pixel Data: \n");
+	for (int i = 0; i < 7; i++) {
+		for (int j = 0; j < 7; j++) {
+			printf("%d", (pixels[i] >> j) & 1);	
+		}
+		printf("\n");
+	}
+}
+
 void TestSPITransfer(void) {
 
 	char buf[8] = {65, 66, 67, 68, 69, 70, 71, 72};
@@ -273,4 +283,56 @@ void TestCreateDisplayGrid(int w, int h) {
 
 	FreeList(list);
 	FreeDisplayGrid(screen);
+}
+
+void TestAutoConfigure() {
+	
+	Neighbors* input = NULL;
+	Display* disp = NULL;
+	DisplayList* list = NULL;
+	DisplayGrid* screen = NULL;
+	
+	InitSPI();
+
+	list = CreateList();
+
+	input = FindNeighborData(BCM2835_SPI_CS0);
+	PrintNeighbors(input);
+
+	InsertDisplay(list, CreateDisplay(input));
+	free(input);
+
+	input = FindNeighborData(BCM2835_SPI_CS1);
+	PrintNeighbors(input);
+
+	InsertDisplay(list, CreateDisplay(input));
+	free(input);
+
+	screen = CreateDisplayGrid(list);
+	FreeList(list);
+
+	PrintDisplayGrid(screen);
+	FreeDisplayGrid(screen);
+	
+	DeinitSPI();
+}
+
+void TestUpdatePixels() {
+	
+	char buf[7] = {0};
+
+	for (int i = 0; i < 7; i++) {
+		for (int j = 0; j < 8; j++) {
+			buf[i] <<= 1;
+			buf[i] |= (i + j) % 2;
+		}
+	}
+
+	PrintPixels(buf);
+
+	InitSPI();
+
+	SendPixelData(BCM2835_SPI_CS0, buf, 7);
+
+	DeinitSPI();
 }

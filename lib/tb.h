@@ -11,6 +11,7 @@ void PrintDisplay(Display* data);
 void PrintDisplayList(DisplayList* list);
 void PrintArray(char* data, int len);
 void PrintDisplayGrid(DisplayGrid* grid);
+void PrintPixels(char* pixels);
 
 void TestSPITransfer(void);
 void TestSPISend(void);
@@ -18,5 +19,7 @@ void TestSPIRead(void);
 void TestCreateDisplay(void);
 void TestCreateDisplayList(void);
 void TestCreateDisplayGrid(int w, int h);
+void TestAutoConfigure();
+void TestUpdatePixels();
 
 #endif // __TB_H__

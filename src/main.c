@@ -18,7 +18,9 @@ int main(int argc, char* argv[]) {
 	//TestSPIRead();
 	//TestCreateDisplay();
 	//TestCreateDisplayList();
-	TestCreateDisplayGrid(2, 4);
+	//TestCreateDisplayGrid(2, 4);
+	//TestAutoConfigure();
+	TestUpdatePixels();
 
 	/*char header[8];
 	FILE* fp = fopen("./tmp/frame0003.png", "rb");

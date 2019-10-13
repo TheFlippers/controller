@@ -38,7 +38,7 @@ int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
 	uint32_t frameLen = 0;
 
 	// Ensure valid data length
-	if (len > FRAME_LEN - 1 || len < 1) {
+	if (len > FRAME_LEN - 1) {
 		fprintf(stderr, "ERROR: Invalid frame data length!\n");
 		return 1;
 	}
