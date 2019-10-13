@@ -37,12 +37,19 @@ int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
 	uint8_t header = 0;
 	uint32_t frameLen = 0;
 
+	// Ensure valid data length
+	if (len > FRAME_LEN - 1 || len < 1) {
+		fprintf(stderr, "ERROR: Invalid frame data length!\n");
+		return 1;
+	}
+
 	// Create frame buffer
-	buf = malloc(sizeof(*buf) * (len + 1));
+	buf = malloc(sizeof(*buf) * FRAME_LEN);
 	if (buf == NULL) {
 		fprintf(stderr, "ERROR: Could not allocate memory!\n");
 		return 1;
 	}
+	memset(buf, 0, FRAME_LEN);
 
 	// Create header from pid
 	header = pid;
@@ -53,35 +60,32 @@ int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
 
 	// buffer frame data
 	buf[0] = header;
-	if (len > 0 && data != NULL) {
-		memcpy((buf + 1), data, len);
-	}
-	frameLen = len + 1;
+	memcpy((buf + 1), data, len);
 
 	// Transmit frame
-	bcm2835_spi_transfern(buf, frameLen);
+	bcm2835_spi_transfern(buf, FRAME_LEN);
 
 	free(buf);
 
 	return 0;
 }
 
-char* ReadResponse(int len) {
+char* ReadResponse() {
 
 	char *buf = NULL;
 
 	// Create data buffer
-	buf = malloc(sizeof(*buf) * len);
+	buf = malloc(sizeof(*buf) * FRAME_LEN);
 	if (buf == NULL) {
 		fprintf(stderr, "ERROR: Could not allocate memory!\n");
 		return buf;
 	}
 
 	// Clear data buffer
-	memset(buf, 0, len);
+	memset(buf, 0, FRAME_LEN);
 
 	// Transmit dummy bytes to initiate read
-	bcm2835_spi_transfern(buf, len);
+	bcm2835_spi_transfern(buf, FRAME_LEN);
 
 	return buf;
 }
@@ -117,11 +121,11 @@ Neighbors* FindNeighborData(uint8_t channel) {
 	buf = ReadResponse(NEIGHBOR_FRAME_LEN);
 
 	// Copy data to output structure
-	out->id = buf[0];
-	out->neighbors[NORTH] = buf[1];
-	out->neighbors[EAST] = buf[2];
-	out->neighbors[WEST] = buf[3];
-	out->neighbors[SOUTH] = buf[4];
+	out->id = buf[1];
+	out->neighbors[NORTH] = buf[2];
+	out->neighbors[EAST] = buf[3];
+	out->neighbors[WEST] = buf[4];
+	out->neighbors[SOUTH] = buf[5];
 	free(buf);
 
 	return out;

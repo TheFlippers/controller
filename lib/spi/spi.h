@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define FRAME_LEN 8
 #define HEADER_BITMASK 127
 #define GP_BITMASK 1
 #define GP_BITSHIFT 7
@@ -42,7 +43,7 @@ typedef struct {
 int InitSPI();
 void DeinitSPI();
 int SendFrame(int gpBit, uint8_t pid, char *data, size_t len);
-char* ReadResponse(int len);
+char* ReadResponse();
 void SendPixelData(uint8_t channel, char* pixels, size_t len);
 Neighbors* FindNeighborData(uint8_t channel);
 

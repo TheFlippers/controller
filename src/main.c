@@ -18,9 +18,9 @@ int main(int argc, char* argv[]) {
 	//TestSPIRead();
 	//TestCreateDisplay();
 	//TestCreateDisplayList();
-	//TestCreateDisplayGrid(2, 4);
+	TestCreateDisplayGrid(2, 4);
 
-	char header[8];
+	/*char header[8];
 	FILE* fp = fopen("./tmp/frame0003.png", "rb");
 	if (!fp) {
 		return EXIT_SUCCESS;
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	else {
 		printf("not png\n");
 	}
-
+*/
 	#endif // DEBUG
 
     return EXIT_SUCCESS;
