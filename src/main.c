@@ -11,11 +11,12 @@
 
 #include "spi/spi.h"
 #include "img/display.h"
+#include "img/read_png.h"
 
 int main(int argc, char* argv[]) {
 
 	#ifdef DEBUG
-	//TestSPITransfer();
+	TestSPITransfer();
 	//TestSPISend();
 	//TestSPIRead();
 	//TestCreateDisplay();
@@ -24,32 +25,18 @@ int main(int argc, char* argv[]) {
 	//TestAutoConfigure();
 	//TestUpdatePixels();
 
-	DIR* FD;
-	struct dirent* in_file;
+	/*
+	Image* image = NULL;
+	char filename[20];
 
-	if ((FD = opendir("./tmp/")) == NULL) {
-		fprintf(stderr, "ERROR: Could not open directory!\n");
-		return EXIT_FAILURE;
+	for (int i = 1; i < 11; i++) {
+		snprintf(filename, 20, "./tmp/frame%d.png", i);
+		image = ReadPNGFile(filename);
+		PrintImage(image);
+		FreeImage(image);
 	}
+	*/
 
-	while ((in_file = readdir(FD))) {
-		printf("%s\n", in_file->d_name);
-	}
-
-	/*char header[8];
-	FILE* fp = fopen("./tmp/frame0003.png", "rb");
-	if (!fp) {
-		return EXIT_SUCCESS;
-	}
-
-	fread(header, 1, 8, fp);
-	if (!png_sig_cmp(header, 0, 8)) {
-		printf("is png\n");
-	}
-	else {
-		printf("not png\n");
-	}
-*/
 	#endif // DEBUG
 
     return EXIT_SUCCESS;

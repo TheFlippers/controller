@@ -85,9 +85,24 @@ void PrintPixels(char* pixels) {
 	}
 }
 
+void PrintDisplayPixels(DisplayPixels* disp) {
+	printf("display Pixel Data (width: %d, height %d): ", disp->modulesWidth, disp->modulesHeight);
+}
+
+void PrintImage(Image* image) {
+	printf("Image Data: \n");
+	for (int x = 0; x < image->width; x++) {
+		for (int y = 0; y < image->height; y++) {
+			printf("%02x ", image->bytes[x][y]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
 void TestSPITransfer(void) {
 
-	char buf[8] = {65, 66, 67, 68, 69, 70, 71, 72};
+	char buf[8] = {75, 76, 77, 78, 79, 80, 81, 82};
 	char* toRead = NULL;
 
 	if (InitSPI() == 0) {
@@ -95,7 +110,7 @@ void TestSPITransfer(void) {
 	}
 
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
-	bcm2835_spi_transfern(buf, 6);
+	bcm2835_spi_transfern(buf, 8);
 
 	PrintArray(buf, 8);
 
