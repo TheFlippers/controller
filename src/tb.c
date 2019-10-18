@@ -1,7 +1,7 @@
 #include "tb.h"
 
 void PrintNeighbors(Neighbors* data) {
-	printf("Neihgbor Data:\n"
+	printf("Neighbor Data:\n"
 		   "  %d  \n"
 		   "  |  \n"
 		   "%d-%d-%d\n"
@@ -102,7 +102,7 @@ void PrintImage(Image* image) {
 
 void TestSPITransfer(void) {
 
-	char buf[8] = {75, 76, 77, 78, 79, 80, 81, 82};
+	char buf[8] = {61, 62, 63, 64, 65, 66, 67, 68};
 	char* toRead = NULL;
 
 	if (InitSPI() == 0) {
@@ -151,6 +151,19 @@ void TestSPIRead(void) {
 	free(toRead);
 	
 	DeinitSPI();
+}
+
+void TestCreateNeighbors(void) {
+
+	Neighbors input;
+
+	input.id = 1;
+	input.neighbors[NORTH] = 0;
+	input.neighbors[EAST] = 2;
+	input.neighbors[WEST] = 4;
+	input.neighbors[SOUTH] = 7;
+
+	PrintNeighbors(&input);
 }
 
 void TestCreateDisplay(void) {
@@ -267,7 +280,7 @@ void TestCreateDisplayList(void) {
 	FreeList(list);
 }
 
-void TestCreateDisplayGrid(int w, int h) {
+void TestCreateDisplayGrid(int w, int h, int printNeighbors) {
 
 	int id = 1;
 
@@ -281,10 +294,14 @@ void TestCreateDisplayGrid(int w, int h) {
 	for (int x = 0; x < w; x++) {
 		for (int y = 0; y < h; y++) {
 			input.id = id;
-			input.neighbors[NORTH] = (id - w > 0) ? id - w : 0;
-			input.neighbors[EAST] = (id % w != 0) ? id + 1 : 0;
-			input.neighbors[WEST] = (id % w != 1) ? id - 1 : 0;
-			input.neighbors[SOUTH] = (id + w <= w * h) ? id + w : 0;
+			input.neighbors[NORTH] = (id - w > 0) && (h != 1)? id - w : 0;
+			input.neighbors[EAST] = (id % w != 0) && (w != 1) ? id + 1 : 0;
+			input.neighbors[WEST] = (id % w != 1) && (w != 1) ? id - 1 : 0;
+			input.neighbors[SOUTH] = (id + w <= w * h) && (h != 1) ? id + w : 0;
+
+			if (printNeighbors) {
+				PrintNeighbors(&input);
+			}
 
 			output = CreateDisplay(&input);
 			InsertDisplay(list, output);
@@ -332,9 +349,39 @@ void TestAutoConfigure() {
 	DeinitSPI();
 }
 
+void TestConvertImage(char *filename) {
+
+	Image* image = NULL;
+
+	image = ReadPNGFile(filename);
+	PrintImage(image);
+	FreeImage(image);
+}
+
+void TestFPS(int printImage) {
+
+	Image* image = NULL;
+	char filename[20];
+
+	time_t start = clock();
+	for (int i = 1; i <= 150; i++) {
+		snprintf(filename, 20, "./tmp/frame%d.png", i);
+		image = ReadPNGFile(filename);
+		if (printImage) {
+			PrintImage(image);
+		}
+		FreeImage(image);
+	}
+	time_t stop = clock();
+
+	printf("Result: %d images read in %lf seconds.\n", 150, (double) (stop - start) / CLOCKS_PER_SEC);
+}
+
 void TestUpdatePixels() {
 	
 	char buf[7] = {0};
+	char tmp;
+	int cnt;
 
 	for (int i = 0; i < 7; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -343,11 +390,18 @@ void TestUpdatePixels() {
 		}
 	}
 
-	PrintPixels(buf);
-
 	InitSPI();
 
-	SendPixelData(BCM2835_SPI_CS0, buf, 7);
+	cnt = 0;
+	while(cnt < 1) {
+		SendPixelData(BCM2835_SPI_CS0, buf, 7);
+		PrintPixels(buf);
+		tmp = buf[0];
+		memmove(buf, buf + 1, 6);
+		buf[6] = tmp;
+		sleep(1);
+		cnt++;
+	}
 
 	DeinitSPI();
 }

@@ -2,6 +2,8 @@
 #define __TB_H__
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "img/display.h"
 #include "img/read_png.h"
@@ -19,10 +21,13 @@ void PrintDisplayPixels(DisplayPixels* disp);
 void TestSPITransfer(void);
 void TestSPISend(void);
 void TestSPIRead(void);
+void TestCreateNeighbors(void);
 void TestCreateDisplay(void);
 void TestCreateDisplayList(void);
-void TestCreateDisplayGrid(int w, int h);
+void TestCreateDisplayGrid(int w, int h, int printNeighbors);
 void TestAutoConfigure();
+void TestConvertImage(char *filename);
+void TestFPS();
 void TestUpdatePixels();
 
 #endif // __TB_H__

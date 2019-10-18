@@ -113,7 +113,7 @@ Display* FindScreenSize(DisplayList* list, int* width, int* height) {
 		curr = curr->neighborDisps[WEST];
 	}
 	corner = curr;
-	
+
 	// Move across display to measure width
 	while (curr != NULL) {
 		count++;
@@ -172,7 +172,6 @@ DisplayGrid* CreateDisplayGrid(DisplayList* list) {
 			return NULL;
 		}
 	}
-
 
 	// Traverse displays to find ID values
 	for (int x = 0; x < screen->width; x++) {
