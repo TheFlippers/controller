@@ -13,14 +13,8 @@ typedef struct {
 	png_bytep *bytes;
 } Image;
 
-typedef struct {
-	int modulesWidth;
-	int modulesHeight;
-	char ***modulePixels;	
-} DisplayPixels;
-
 Image* ReadPNGFile(char* filename); 
-DisplayPixels* ImageToDisplayPixels(Image* image);
+char* ImageToDisplayPixels(Image* image, int w, int h, int x, int y);
 void FreeImage(Image* image);
 
 #endif // __READ_PNG_H__

@@ -85,10 +85,6 @@ void PrintPixels(char* pixels) {
 	}
 }
 
-void PrintDisplayPixels(DisplayPixels* disp) {
-	printf("display Pixel Data (width: %d, height %d): ", disp->modulesWidth, disp->modulesHeight);
-}
-
 void PrintImage(Image* image) {
 	printf("Image Data: \n");
 	for (int x = 0; x < image->width; x++) {
@@ -379,27 +375,18 @@ void TestFPS(int printImage) {
 
 void TestUpdatePixels() {
 	
-	char buf[7] = {0};
-	char tmp;
+	char buf[7] = {0x1a, 0x00};
 	int cnt;
-
-	for (int i = 0; i < 7; i++) {
-		for (int j = 0; j < 8; j++) {
-			buf[i] <<= 1;
-			buf[i] |= (i + j) % 2;
-		}
-	}
 
 	InitSPI();
 
 	cnt = 0;
-	while(cnt < 1) {
+	while(cnt < 500) {
 		SendPixelData(BCM2835_SPI_CS0, buf, 7);
 		PrintPixels(buf);
-		tmp = buf[0];
-		memmove(buf, buf + 1, 6);
-		buf[6] = tmp;
-		sleep(1);
+		memmove(buf + 1, buf, 6);
+		buf[0] = (cnt % 2 == 1) ? 1 << (rand() % 8) : buf[0];
+		usleep(67000);
 		cnt++;
 	}
 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "img/display.h"
 #include "img/read_png.h"
@@ -52,6 +53,28 @@ int main(int argc, char* argv[]) {
 	#ifdef TEST8
 		TestUpdatePixels();
 	#endif // TEST8
+
+	#ifdef TEST9
+		Image* image = NULL;
+		char filename[20] = {0};
+		char* buf = NULL;
+
+		InitSPI();
+
+		for (int i = 1; i < 150; i++) {
+			snprintf(filename, 20, "./tmp/frame%d.png", i);
+			image = ReadPNGFile(filename);
+			buf = ImageToDisplayPixels(image, 0, 0, 0, 0);
+			PrintPixels(buf);
+			SendPixelData(BCM2835_SPI_CS0, buf, 7);
+			free(buf);
+			FreeImage(image);
+			usleep(67000);
+		}
+
+		DeinitSPI();
+
+	#endif // TEST9
 
     return EXIT_SUCCESS;
 }

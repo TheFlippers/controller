@@ -16,7 +16,6 @@ void PrintArray(char* data, int len);
 void PrintDisplayGrid(DisplayGrid* grid);
 void PrintPixels(char* pixels);
 void PrintImage(Image* image);
-void PrintDisplayPixels(DisplayPixels* disp);
 
 void TestSPITransfer(void);
 void TestSPISend(void);

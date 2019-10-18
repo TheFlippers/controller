@@ -108,8 +108,8 @@ Image* ReadPNGFile(char* filename) {
 	return image;
 }
 
-DisplayPixels* ImageToDisplayPixels(Image* image) {
-
+char* ImageToDisplayPixels(Image* image, int w, int h, int x, int y) {
+	/*
 	DisplayPixels *disp = NULL;
 
 	// Allocate memory for display
@@ -176,6 +176,32 @@ DisplayPixels* ImageToDisplayPixels(Image* image) {
 	}
 
 	return disp;
+	*/
+
+	char *buf = NULL;
+	int bitCnt = 0;
+	int bit = 0;
+
+	buf = malloc(sizeof(*buf) * MODULE_SIZE);
+	if (buf == NULL) {
+		fprintf(stderr, "ERROR: Could not allocate memory!\n");
+		return NULL;
+	}
+
+	for (int row = 0; row < MODULE_SIZE; row++) {
+		bitCnt = 0;
+		buf[row] = 0;
+		for (int col = 0; col < MODULE_SIZE; col++) {
+			bit = (image->bytes[row][col] == 0xFF) ? 1 : 0;
+			buf[row] |= bit << col;
+			bitCnt += bit;
+		}
+		if (bitCnt % 2 == 0) {
+			buf[row] |= 1 << 7;
+		}
+	}
+
+	return buf;
 }
 
 void FreeImage(Image* image) {
