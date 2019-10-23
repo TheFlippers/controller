@@ -18,8 +18,21 @@ int main(int argc, char* argv[]) {
 		TestSPITransfer();
 	#endif // TEST1
 
-	//TestSPISend();
-	//TestSPIRead();
+	#ifdef TESTA
+		TestSPISend();
+	#endif
+	
+	#ifdef TESTB
+		TestSPIRead();
+	#endif
+
+	#ifdef TESTC
+		TestSendDisplayID();
+	#endif
+
+	#ifdef TESTD
+		TestSendPixelData();
+	#endif
 
 	#ifdef TEST2
 		TestCreateNeighbors();	

@@ -105,9 +105,13 @@ void TestSPITransfer(void) {
 		return;
 	}
 
+	printf("TX: ");
+	PrintArray(buf, 8);
+
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
 	bcm2835_spi_transfern(buf, 8);
 
+	printf("RX: ");
 	PrintArray(buf, 8);
 
 	DeinitSPI();
@@ -115,14 +119,17 @@ void TestSPITransfer(void) {
 
 void TestSPISend(void) {
 
-	char toSend[8] = {10, 11, 12, 13, 14, 15, 16, 17};
+	char toSend[7] = {10, 11, 12, 13, 14, 15, 16};
 
 	if (InitSPI() == 0) {
 		return;
 	}
 
+	printf("TX: ");
+	PrintArray(toSend, 7);
+
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
-	SendFrame(1, 8, toSend, 8);
+	SendFrame(1, 2, toSend, 7);
 	
 	DeinitSPI();
 }
@@ -146,6 +153,35 @@ void TestSPIRead(void) {
 
 	free(toRead);
 	
+	DeinitSPI();
+}
+
+void TestSendDisplayID(void) {
+
+	uint8_t id = 1;
+	
+	if (InitSPI() == 0) {
+		return;
+	}
+
+	SendDisplayID(BCM2835_SPI_CS0, id);
+
+	DeinitSPI();
+}
+
+void TestSendPixelData(void) {
+
+	char buf[7] = {10, 12, 14, 16, 18, 20, 22};
+
+	if (InitSPI() == 0) {
+		return;
+	}
+
+	printf("TX: ");
+	PrintArray(buf, 7);
+
+	SendPixelData(BCM2835_SPI_CS0, buf, 7);
+
 	DeinitSPI();
 }
 

@@ -25,7 +25,8 @@ enum GetPIDs {
 
 enum PostPIDs {
 	POST_NEIGHBOR_DATA = 0,
-	POST_PIXEL_DATA = 1
+	POST_PIXEL_DATA = 1,
+	POST_DISPLAY_ID = 2
 };
 
 enum Directions {
@@ -45,6 +46,7 @@ void DeinitSPI();
 int SendFrame(int gpBit, uint8_t pid, char *data, size_t len);
 char* ReadResponse();
 void SendPixelData(uint8_t channel, char* pixels, size_t len);
+void SendDisplayID(uint8_t channel, uint8_t id);
 Neighbors* FindNeighborData(uint8_t channel);
 
 #endif // __SPI_H__

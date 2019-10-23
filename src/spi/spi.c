@@ -92,12 +92,41 @@ char* ReadResponse() {
 
 void SendPixelData(uint8_t channel, char* pixels, size_t len) {
 
-	
+	int bitCnt = 0;
+	uint8_t currNum = 0;
+
 	// Select desired SPI slave channel
 	bcm2835_spi_chipSelect(channel);
 
+	// Set pixel parity bits
+	for (int i = 0; i < len; i++) {
+
+		// Count number of bits set to find parity value
+		bitCnt = 0;
+		currNum = pixels[i];
+		while (currNum != 0) {
+			currNum = currNum & (currNum - 1);
+			bitCnt++;
+		}
+		pixels[i] |= ((bitCnt + 1) % 2);
+	}
+
 	// Send frame with header information
 	SendFrame(POST, POST_PIXEL_DATA, pixels, len);
+}
+
+void SendDisplayID(uint8_t channel, uint8_t id) {
+	
+	char buf[1] = {0};
+
+	// Select desired SPI slave channel
+	bcm2835_spi_chipSelect(channel);
+
+	// Fill data buffer
+	buf[0] = id;
+
+	// Send get request to slave
+	SendFrame(POST, POST_DISPLAY_ID, buf, 1);
 }
 
 Neighbors* FindNeighborData(uint8_t channel) {
@@ -111,22 +140,31 @@ Neighbors* FindNeighborData(uint8_t channel) {
 		fprintf(stderr, "ERROR: Could not allocate memory!\n");
 		return out;
 	}
+
 	// Select desired SPI slave channel
 	bcm2835_spi_chipSelect(channel);
 
-	// Send get request to slave
-	SendFrame(GET, GET_NEIGHBOR_DATA, buf, 0);
+	// Initialize id value for checking data reception
+	out->id = 0;
 
-	// Read neighbor data from device
-	buf = ReadResponse(NEIGHBOR_FRAME_LEN);
+	// Request neighbor data until valid value received
+	while (out->id == 0) {
 
-	// Copy data to output structure
-	out->id = buf[1];
-	out->neighbors[NORTH] = buf[2];
-	out->neighbors[EAST] = buf[3];
-	out->neighbors[WEST] = buf[4];
-	out->neighbors[SOUTH] = buf[5];
-	free(buf);
+		// Send get request to slave
+		SendFrame(GET, GET_NEIGHBOR_DATA, buf, 0);
+
+		// Read neighbor data from device
+		buf = ReadResponse(NEIGHBOR_FRAME_LEN);
+
+		// Copy data to output
+		out->id = buf[1];
+		out->neighbors[NORTH] = buf[2];
+		out->neighbors[EAST] = buf[3];
+		out->neighbors[WEST] = buf[4];
+		out->neighbors[SOUTH] = buf[5];
+
+		free(buf);
+	}
 
 	return out;
 }

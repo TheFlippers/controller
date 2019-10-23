@@ -20,6 +20,8 @@ void PrintImage(Image* image);
 void TestSPITransfer(void);
 void TestSPISend(void);
 void TestSPIRead(void);
+void TestSendDisplayID(void);
+void TestSendPixelData(void);
 void TestCreateNeighbors(void);
 void TestCreateDisplay(void);
 void TestCreateDisplayList(void);
