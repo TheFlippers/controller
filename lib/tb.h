@@ -19,7 +19,7 @@ void PrintImage(Image* image);
 
 void TestSPITransfer(void);
 void TestSPISend(void);
-void TestSPIRead(void);
+void TestGetNeighbors(void);
 void TestSendDisplayID(void);
 void TestSendPixelData(void);
 void TestCreateNeighbors(void);

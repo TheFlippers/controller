@@ -109,90 +109,30 @@ Image* ReadPNGFile(char* filename) {
 }
 
 char* ImageToDisplayPixels(Image* image, int w, int h, int x, int y) {
-	/*
-	DisplayPixels *disp = NULL;
-
-	// Allocate memory for display
-	disp = malloc(sizeof(*disp));
-	if (disp == NULL) {
-		fprintf(stderr, "ERROR: Could not allocate memory!\n");
-		return NULL;
-	}
-
-	// Calculate screen size in number of modules
-	disp->modulesWidth = image->width / MODULE_SIZE;
-	disp->modulesHeight = image->height / MODULE_SIZE;
-
-	// Allocate memory for display modules
-	disp->modulePixels = malloc(sizeof(*(disp->modulePixels)) * disp->modulesWidth);
-	if (disp->modulePixels == NULL) {
-		fprintf(stderr, "ERROR: Could not allocate memory!\n");
-		free(disp);
-		return NULL;
-	}
-	for (int x = 0; x < disp->modulesWidth; x++) {
-		disp->modulePixels[x] = malloc(sizeof(*(disp->modulePixels[x])) * disp->modulesHeight);
-		if (disp->modulePixels[x] == NULL) {
-			fprintf(stderr, "ERROR: Could not allocate memory!\n");
-			for (int i = 0; i < x; i++) {
-				free(disp->modulePixels[i]);
-			}
-			free(disp->modulePixels);
-			free(disp);
-			return NULL;
-		}
-	}
-
-	// Allocate pixel buffers
-	for (int x = 0; x < disp->modulesWidth; x++) {
-		for (int y = 0; y < disp->modulesHeight; y++) {
-			disp->modulePixels[x][y] = malloc(sizeof(*(disp->modulePixels[x][y])) * MODULE_SIZE);
-			if (disp->modulePixels[x][y] == NULL) {
-				fprintf(stderr, "ERROR: Could not allocate memory!\n");
-				for (int i = 0; i < x; i++) {
-					for (int j = 0; j < y; j++) {
-						free(disp->modulePixels[i][j]);
-					}
-				}
-				for (int i = 0; i < disp->modulesWidth; i++) {
-					free(disp->modulePixels[i]);
-				}
-				free(disp->modulePixels);
-				free(disp);
-				return NULL;
-			}
-		}
-	}
-
-	// Populate pixel data
-	for (int x = 0; x < image->width; x++) {
-		for (int y = 0; y < image->height; y++) {
-			int moduleX = x / MODULE_SIZE;
-			int moduleY = y / MODULE_SIZE;
-			int moduleRow = y % MODULE_SIZE;
-			int moduleCol = x % MODULE_SIZE;
-			disp->modulePixels[moduleX][moduleY][moduleRow] |= (image->bytes[x][y] & 1) << (moduleCol);
-		}
-	}
-
-	return disp;
-	*/
 
 	char *buf = NULL;
 	int bitCnt = 0;
 	int bit = 0;
 
+	// Check requested image segment to ensure it falls in display
+	if (x >= w || y >= h) {
+		fprintf(stderr, "ERROR: Image index out of bounds!\n");
+		return NULL;
+	}
+
+	// Allocate pixel buffer
 	buf = malloc(sizeof(*buf) * MODULE_SIZE);
 	if (buf == NULL) {
 		fprintf(stderr, "ERROR: Could not allocate memory!\n");
 		return NULL;
 	}
 
+	// Read selected region from image
 	for (int row = 0; row < MODULE_SIZE; row++) {
 		bitCnt = 0;
 		buf[row] = 0;
 		for (int col = 0; col < MODULE_SIZE; col++) {
-			bit = (image->bytes[row][col] == 0xFF) ? 1 : 0;
+			bit = (image->bytes[row + (y * MODULE_SIZE)][col + (x * MODULE_SIZE)] == 0xFF) ? 1 : 0;
 			buf[row] |= bit << col;
 			bitCnt += bit;
 		}

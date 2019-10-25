@@ -37,6 +37,7 @@ void FreeList(DisplayList* list);
 Display* FindScreenSize(DisplayList* list, int* width, int* height);
 DisplayGrid* CreateDisplayGrid(DisplayList* list);
 void FreeDisplayGrid(DisplayGrid* grid);
+int SaveDisplayGrid(char* filename, int width, int height);
 
 
 #endif // __DISPLAY_H__

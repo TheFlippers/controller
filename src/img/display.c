@@ -197,3 +197,22 @@ void FreeDisplayGrid(DisplayGrid* grid) {
 	free(grid->dispIds);
 	free(grid);
 }
+
+int SaveDisplayGrid(char* filename, int width, int height) {
+	
+	FILE* fp = NULL;
+
+	// Open config file to write data
+	fp = fopen(filename, "w");
+	if (fp == NULL) {
+		fprintf(stderr, "ERROR: Could not open file for writing!\n");
+		return 1;
+	}
+
+	// Write configurations
+	fprintf(fp, "%d %d\n", width, height);
+
+	fclose(fp);
+
+	return 0;
+}

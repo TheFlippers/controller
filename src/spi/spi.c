@@ -65,29 +65,12 @@ int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
 	// Transmit frame
 	bcm2835_spi_transfern(buf, FRAME_LEN);
 
+	// Copy reponse to buffer
+	memcpy(data, buf, FRAME_LEN);
+
 	free(buf);
 
 	return 0;
-}
-
-char* ReadResponse() {
-
-	char *buf = NULL;
-
-	// Create data buffer
-	buf = malloc(sizeof(*buf) * FRAME_LEN);
-	if (buf == NULL) {
-		fprintf(stderr, "ERROR: Could not allocate memory!\n");
-		return buf;
-	}
-
-	// Clear data buffer
-	memset(buf, 0, FRAME_LEN);
-
-	// Transmit dummy bytes to initiate read
-	bcm2835_spi_transfern(buf, FRAME_LEN);
-
-	return buf;
 }
 
 void SendPixelData(uint8_t channel, char* pixels, size_t len) {
@@ -117,7 +100,7 @@ void SendPixelData(uint8_t channel, char* pixels, size_t len) {
 
 void SendDisplayID(uint8_t channel, uint8_t id) {
 	
-	char buf[1] = {0};
+	char buf[8] = {0};
 
 	// Select desired SPI slave channel
 	bcm2835_spi_chipSelect(channel);
@@ -131,7 +114,7 @@ void SendDisplayID(uint8_t channel, uint8_t id) {
 
 Neighbors* FindNeighborData(uint8_t channel) {
 
-	char* buf = NULL;
+	char buf[8] = {0};
 	Neighbors* out = NULL;
 
 	// Create neigbor data structure
@@ -150,20 +133,21 @@ Neighbors* FindNeighborData(uint8_t channel) {
 	// Request neighbor data until valid value received
 	while (out->id == 0) {
 
-		// Send get request to slave
+		// Send get request to slave and read response
 		SendFrame(GET, GET_NEIGHBOR_DATA, buf, 0);
 
-		// Read neighbor data from device
-		buf = ReadResponse(NEIGHBOR_FRAME_LEN);
+		// Check header for correct frame type
+		if (buf[1] != 0) {
+			fprintf(stderr, "ERROR: Incorrect frame type when reading neighbors!\n");
+			continue;
+		}
 
 		// Copy data to output
-		out->id = buf[1];
-		out->neighbors[NORTH] = buf[2];
-		out->neighbors[EAST] = buf[3];
-		out->neighbors[WEST] = buf[4];
+		out->id = buf[2];
+		out->neighbors[NORTH] = buf[3];
+		out->neighbors[EAST] = buf[4];
+		out->neighbors[WEST] = buf[6];
 		out->neighbors[SOUTH] = buf[5];
-
-		free(buf);
 	}
 
 	return out;

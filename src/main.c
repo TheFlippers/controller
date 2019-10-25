@@ -20,19 +20,23 @@ int main(int argc, char* argv[]) {
 
 	#ifdef TESTA
 		TestSPISend();
-	#endif
+	#endif // TESTA
 	
 	#ifdef TESTB
 		TestSPIRead();
-	#endif
+	#endif // TESTB
 
 	#ifdef TESTC
 		TestSendDisplayID();
-	#endif
+	#endif // TESTC
 
 	#ifdef TESTD
 		TestSendPixelData();
-	#endif
+	#endif // TESTD
+
+	#ifdef TESTE
+		TestGetNeighbors();
+	#endif // TESTE
 
 	#ifdef TEST2
 		TestCreateNeighbors();	
@@ -49,7 +53,9 @@ int main(int argc, char* argv[]) {
 		TestCreateDisplayGrid(5, 3, 0);
 	#endif // TEST4
 
-	//TestAutoConfigure();
+	#ifdef TESTF
+		TestAutoConfigure();
+	#endif //TESTF
 
 	#ifdef TEST5
 		TestConvertImage("./tmp/frame3.png");

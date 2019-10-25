@@ -134,25 +134,14 @@ void TestSPISend(void) {
 	DeinitSPI();
 }
 
-void TestSPIRead(void) {
-
-	char* toRead = NULL;
-	int len = 8;
+void TestGetNeighbors(void) {
 
 	if (InitSPI() == 0) {
 		return;
 	}
 
-	toRead = ReadResponse(len);
-	if (toRead == NULL) {
-		printf("ERROR: Could not read response!\n");
-		return;
-	}
+	SendFrame(GET, GET_NEIGHBOR_DATA, NULL, 0);
 
-	PrintArray(toRead, len);
-
-	free(toRead);
-	
 	DeinitSPI();
 }
 
@@ -345,12 +334,15 @@ void TestCreateDisplayGrid(int w, int h, int printNeighbors) {
 	screen = CreateDisplayGrid(list);
 	PrintDisplayGrid(screen);
 
+	SaveDisplayGrid("config.txt", screen->width, screen->height);
+
 	FreeList(list);
 	FreeDisplayGrid(screen);
 }
 
 void TestAutoConfigure() {
 	
+	uint8_t channels[2] = {BCM2835_SPI_CS0, BCM2835_SPI_CS1};
 	Neighbors* input = NULL;
 	Display* disp = NULL;
 	DisplayList* list = NULL;
@@ -360,17 +352,16 @@ void TestAutoConfigure() {
 
 	list = CreateList();
 
-	input = FindNeighborData(BCM2835_SPI_CS0);
-	PrintNeighbors(input);
+	for (int i = 0; i < 2; i++) {
+		SendDisplayID(channels[i], i + 1);
+	}
 
-	InsertDisplay(list, CreateDisplay(input));
-	free(input);
-
-	input = FindNeighborData(BCM2835_SPI_CS1);
-	PrintNeighbors(input);
-
-	InsertDisplay(list, CreateDisplay(input));
-	free(input);
+	for (int i = 0; i < 2; i++) {
+		input = FindNeighborData(channels[i]);
+		PrintNeighbors(input);
+		InsertDisplay(list, CreateDisplay(input));
+		free(input);
+	}
 
 	screen = CreateDisplayGrid(list);
 	FreeList(list);
