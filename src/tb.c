@@ -96,6 +96,19 @@ void PrintImage(Image* image) {
 	printf("\n");
 }
 
+void PrintMessage(Message* msg) {
+	printf("Message Data (len %d): \n", msg->len);
+	for (int i = 0; i < msg->len; i++) {
+		printf("Character: %c (%d)\n", msg->letters[i].character, msg->letters[i].character);
+		for (int j = 0; j < 7; j++) {
+			for (int k = 7; k >= 0; k--) {
+				printf("%d", (msg->letters[i].pixels[j] >> k) & 1);	
+			}
+			printf("\n");
+		}
+	}
+}
+
 void TestSPITransfer(void) {
 
 	char buf[8] = {61, 62, 63, 64, 65, 66, 67, 68};
@@ -334,7 +347,7 @@ void TestCreateDisplayGrid(int w, int h, int printNeighbors) {
 	screen = CreateDisplayGrid(list);
 	PrintDisplayGrid(screen);
 
-	SaveDisplayGrid("config.txt", screen->width, screen->height);
+	SaveDisplayGrid("config.txt", screen);
 
 	FreeList(list);
 	FreeDisplayGrid(screen);
@@ -418,4 +431,125 @@ void TestUpdatePixels() {
 	}
 
 	DeinitSPI();
+}
+
+void TestReadMessage() {
+
+	char* txt = NULL;
+	Message msg;
+
+	txt = ReadTXTFile("./tmp/message.txt");
+	TextToPixels(txt, &msg);
+
+	PrintMessage(&msg);
+	
+	FreeMessage(&msg);
+	free(txt);
+}
+
+void RunTests() {
+
+	#ifdef TEST1
+		TestSPITransfer();
+	#endif // TEST1
+
+	#ifdef TESTA
+		TestSPISend();
+	#endif // TESTA
+	
+	#ifdef TESTB
+		TestSPIRead();
+	#endif // TESTB
+
+	#ifdef TESTC
+		TestSendDisplayID();
+	#endif // TESTC
+
+	#ifdef TESTD
+		TestSendPixelData();
+	#endif // TESTD
+
+	#ifdef TESTE
+		TestGetNeighbors();
+	#endif // TESTE
+
+	#ifdef TEST2
+		TestCreateNeighbors();	
+	#endif // TEST2
+
+	//TestCreateDisplay();
+	//TestCreateDisplayList();
+
+	#ifdef TEST3
+		TestCreateDisplayGrid(3, 1, 1);
+	#endif // TEST3
+
+	#ifdef TEST4
+		TestCreateDisplayGrid(5, 3, 0);
+	#endif // TEST4
+
+	#ifdef TESTF
+		TestAutoConfigure();
+	#endif //TESTF
+
+	#ifdef TEST5
+		TestConvertImage("./tmp/frame3.png");
+	#endif // TEST5
+
+	#ifdef TEST6
+		TestFPS(1);
+	#endif // TEST6
+
+	#ifdef TEST7
+		TestFPS(0);
+	#endif // TEST7
+
+	#ifdef TEST8
+		TestUpdatePixels();
+	#endif // TEST8
+
+	#ifdef TEST9
+		Image* image = NULL;
+		char filename[20] = {0};
+		char* buf = NULL;
+
+		clock_t start, end;
+
+		// Begin execution time measurement
+		start = clock();
+
+		// Setup SPI communications
+		InitSPI();
+
+		// Read each image file
+		for (int i = 1; i < 150; i++) {
+
+			// Open image file
+			snprintf(filename, 20, "./tmp/frame%d.png", i);
+			image = ReadPNGFile(filename);
+
+			// Convert PNG to pixel data
+			buf = ImageToDisplayPixels(image, 1, 1, 0, 0);
+			PrintPixels(buf);
+
+			// Transmit pixel data
+			SendPixelData(BCM2835_SPI_CS0, buf, 7);
+
+			// Memory clean-up
+			free(buf);
+			FreeImage(image);
+		}
+
+		// Close SPI connections
+		DeinitSPI();
+
+		// Stop execution time measurement
+		end = clock();
+
+		// Display statistics
+		printf("Execution time: %f (in clock cycles)\n", (double) end - start);
+		printf("Execution time: %f (in clock seconds)\n", (double) (end - start) / CLOCKS_PER_SEC);
+		printf("Frame rate: %f FPS (for 150 frame sample)\n", 150 * CLOCKS_PER_SEC / (double) (end - start));
+
+	#endif // TEST9
 }

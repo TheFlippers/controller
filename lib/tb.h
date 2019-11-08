@@ -1,6 +1,8 @@
 #ifndef __TB_H__
 #define __TB_H__
 
+#include <time.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,6 +10,7 @@
 #include "img/display.h"
 #include "img/read_png.h"
 #include "spi/spi.h"
+#include "text/read_txt.h"
 
 void PrintNeighbors(Neighbors* data);
 void PrintDisplay(Display* data);
@@ -16,6 +19,7 @@ void PrintArray(char* data, int len);
 void PrintDisplayGrid(DisplayGrid* grid);
 void PrintPixels(char* pixels);
 void PrintImage(Image* image);
+void PrintMessage(Message* msg);
 
 void TestSPITransfer(void);
 void TestSPISend(void);
@@ -30,5 +34,8 @@ void TestAutoConfigure();
 void TestConvertImage(char *filename);
 void TestFPS();
 void TestUpdatePixels();
+void TestReadMessage();
+
+void RunTests();
 
 #endif // __TB_H__

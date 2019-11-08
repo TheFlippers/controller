@@ -7,6 +7,7 @@
 #include "spi/spi.h"
 
 #define NUM_NEIGHBORS 4
+#define MODULE_SIZE 7
 
 typedef struct _Display {
 	uint8_t id;
@@ -37,7 +38,7 @@ void FreeList(DisplayList* list);
 Display* FindScreenSize(DisplayList* list, int* width, int* height);
 DisplayGrid* CreateDisplayGrid(DisplayList* list);
 void FreeDisplayGrid(DisplayGrid* grid);
-int SaveDisplayGrid(char* filename, int width, int height);
-
+int SaveDisplayGrid(char* filename, DisplayGrid* grid);
+DisplayGrid* LoadDisplayGrid(char* filename);
 
 #endif // __DISPLAY_H__

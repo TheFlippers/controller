@@ -198,7 +198,7 @@ void FreeDisplayGrid(DisplayGrid* grid) {
 	free(grid);
 }
 
-int SaveDisplayGrid(char* filename, int width, int height) {
+int SaveDisplayGrid(char* filename, DisplayGrid* grid) {
 	
 	FILE* fp = NULL;
 
@@ -210,9 +210,87 @@ int SaveDisplayGrid(char* filename, int width, int height) {
 	}
 
 	// Write configurations
-	fprintf(fp, "%d %d\n", width, height);
+	fprintf(fp, "%dx%d\n", grid->width * MODULE_SIZE, grid->height * MODULE_SIZE);
+	for (int y = 0; y < grid->height; y++) {
+		for (int x = 0; x < grid->width; y++) {
+			fprintf(fp, "%d ", grid->dispIds[x][y]);
+		}
+		fprintf(fp, "\n");
+	}
 
 	fclose(fp);
 
 	return 0;
+}
+
+DisplayGrid* LoadDisplayGrid(char* filename) {
+
+	FILE* fp;
+    char* line = NULL;
+	char* token = NULL;
+    size_t len = 0;
+    ssize_t read;
+	DisplayGrid* grid = NULL;
+
+	// Read configuration file
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+		fprintf(stderr, "ERROR: Could not open file for reading!\n");
+		return NULL;
+	}
+
+	// Allocate memory for grid
+	grid = malloc(sizeof(*grid));
+	if (grid == NULL) {
+		fprintf(stderr, "ERROR: Could not allocate memory!\n");
+		return NULL;
+	}
+
+	// Read grid size
+    if ((read = getline(&line, &len, fp)) != -1) {
+		token = strsep(&line, "x");
+		grid->width = atoi(token) / MODULE_SIZE;
+		token = strsep(&line, "x");
+		grid->height = atoi(token) / MODULE_SIZE;
+	}
+
+	// Allocate memory for display rows
+	grid->dispIds = malloc(sizeof(*(grid->dispIds)) * grid->width);
+	if (grid->dispIds == NULL) {
+		fprintf(stderr, "ERROR: Could not allocate memory!\n");
+		free(grid);
+		return NULL;
+	}
+
+	// Allocate memory for display columns
+	for (int x = 0; x < grid->width; x++) {
+		grid->dispIds[x] = malloc(sizeof(*(grid->dispIds[x])) * grid->height);
+		if (grid->dispIds[x] == NULL) {
+			fprintf(stderr, "ERROR: Could not allocate memory!\n");
+			for (int i = 0; i < x; i++) {
+				free(grid->dispIds[i]);
+			}
+			free(grid->dispIds);
+			free(grid);
+			return NULL;
+		}
+	}
+
+	// Read each line for grid ID's
+	for (int y = 0; y < grid->height; y++) {
+		if ((read = getline(&line, &len, fp)) != -1) {
+			for (int x = 0; x < grid->width; x++) {
+				token = strsep(&line, " ");
+				grid->dispIds[x][y] = atoi(token);
+			}
+		}
+	}
+
+	// Close file
+    fclose(fp);
+	if (line != NULL) {
+		free(line);
+	}
+
+	return grid;
 }

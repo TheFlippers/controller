@@ -1,99 +1,58 @@
-#define DEBUG
-
 #include <dirent.h>
 #include <png.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
 #include "img/display.h"
 #include "img/read_png.h"
 #include "spi/spi.h"
+#include "text/read_txt.h"
+#include "fdd.h"
 #include "tb.h"
 
 int main(int argc, char* argv[]) {
-
-	#ifdef TEST1
-		TestSPITransfer();
-	#endif // TEST1
-
-	#ifdef TESTA
-		TestSPISend();
-	#endif // TESTA
 	
-	#ifdef TESTB
-		TestSPIRead();
-	#endif // TESTB
+	InitSPI();
 
-	#ifdef TESTC
-		TestSendDisplayID();
-	#endif // TESTC
+	// Run configurations to find display size
+	if (argc >= 2 && !strcmp(argv[1], "config")) {
 
-	#ifdef TESTD
-		TestSendPixelData();
-	#endif // TESTD
-
-	#ifdef TESTE
-		TestGetNeighbors();
-	#endif // TESTE
-
-	#ifdef TEST2
-		TestCreateNeighbors();	
-	#endif // TEST2
-
-	//TestCreateDisplay();
-	//TestCreateDisplayList();
-
-	#ifdef TEST3
-		TestCreateDisplayGrid(3, 1, 1);
-	#endif // TEST3
-
-	#ifdef TEST4
-		TestCreateDisplayGrid(5, 3, 0);
-	#endif // TEST4
-
-	#ifdef TESTF
-		TestAutoConfigure();
-	#endif //TESTF
-
-	#ifdef TEST5
-		TestConvertImage("./tmp/frame3.png");
-	#endif // TEST5
-
-	#ifdef TEST6
-		TestFPS(1);
-	#endif // TEST6
-
-	#ifdef TEST7
-		TestFPS(0);
-	#endif // TEST7
-
-	#ifdef TEST8
-		TestUpdatePixels();
-	#endif // TEST8
-
-	#ifdef TEST9
-		Image* image = NULL;
-		char filename[20] = {0};
-		char* buf = NULL;
-
-		InitSPI();
-
-		for (int i = 1; i < 150; i++) {
-			snprintf(filename, 20, "./tmp/frame%d.png", i);
-			image = ReadPNGFile(filename);
-			buf = ImageToDisplayPixels(image, 0, 0, 0, 0);
-			PrintPixels(buf);
-			SendPixelData(BCM2835_SPI_CS0, buf, 7);
-			free(buf);
-			FreeImage(image);
-			usleep(67000);
+		// Configure display using SPI serial communication
+		ConfigureFDD("fdd_conf");
+	}
+	// Run main execution loop
+	else if (argc >= 2) {
+		
+		// Read grid from config file
+		DisplayGrid* grid = NULL;
+		grid = LoadDisplayGrid("fdd_conf");
+		if (grid == NULL) {
+			fprintf(stderr, "ERROR: Could not load display configuration!\n");
+			DeinitSPI();
+			return EXIT_FAILURE;
 		}
 
-		DeinitSPI();
+		// Display images
+		if (!strcmp(argv[1], "images")) {
+			while (1) {
+				DisplayFrames("./tmp/num_frames", grid);
+			}
+		}
+		// Display text
+		else if(!strcmp(argv[1], "text")) {
+			while (1) {
+				DisplayText("./tmp/message.txt", grid);
+			}
+		}
 
-	#endif // TEST9
+		// Memory clean-up
+		FreeDisplayGrid(grid);
+	}
+
+	DeinitSPI();
 
     return EXIT_SUCCESS;
 }

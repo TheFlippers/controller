@@ -13,7 +13,6 @@
 #define GP_BITSHIFT 7
 #define NEIGHBOR_FRAME_LEN 6
 
-// TODO: implement method of saving ids for each channel
 
 enum FrameType {
 	POST = 0,

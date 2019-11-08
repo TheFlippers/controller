@@ -28,7 +28,9 @@ void DeinitSPI() {
 
 	// Stop BCM drivers
     bcm2835_spi_end();
-    bcm2835_close();
+    
+	// TODO: Debug segfault error
+	//bcm2835_close();
 }
 
 int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
