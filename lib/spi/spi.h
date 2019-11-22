@@ -46,6 +46,6 @@ void DeinitSPI();
 int SendFrame(int gpBit, uint8_t pid, char *data, size_t len);
 void SendPixelData(uint8_t channel, char* pixels, size_t len);
 void SendDisplayID(uint8_t channel, uint8_t id);
-Neighbors* FindNeighborData(uint8_t channel);
+Neighbors* FindNeighborData(uint8_t channel, int timeout);
 
 #endif // __SPI_H__

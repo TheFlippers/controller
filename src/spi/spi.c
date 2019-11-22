@@ -114,9 +114,10 @@ void SendDisplayID(uint8_t channel, uint8_t id) {
 	SendFrame(POST, POST_DISPLAY_ID, buf, 1);
 }
 
-Neighbors* FindNeighborData(uint8_t channel) {
+Neighbors* FindNeighborData(uint8_t channel, int timeout) {
 
 	char buf[8] = {0};
+	int pollCnt = 0;
 	Neighbors* out = NULL;
 
 	// Create neigbor data structure
@@ -133,10 +134,11 @@ Neighbors* FindNeighborData(uint8_t channel) {
 	out->id = 0;
 
 	// Request neighbor data until valid value received
-	while (out->id == 0) {
+	while (out->id == 0 && pollCnt < timeout) {
 
 		// Send get request to slave and read response
 		SendFrame(GET, GET_NEIGHBOR_DATA, buf, 0);
+		pollCnt++;
 
 		// Check header for correct frame type
 		if (buf[1] != 0) {
@@ -152,5 +154,10 @@ Neighbors* FindNeighborData(uint8_t channel) {
 		out->neighbors[SOUTH] = buf[5];
 	}
 
+	// Return output
+	if (pollCnt == timeout) {
+		free(out);
+		return NULL;
+	}
 	return out;
 }

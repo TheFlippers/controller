@@ -38,13 +38,18 @@ int main(int argc, char* argv[]) {
 		// Display images
 		if (!strcmp(argv[1], "images")) {
 			while (1) {
-				DisplayFrames("./tmp/num_frames", grid);
+				DisplayImages("./tmp/num_frames", grid);
 			}
 		}
 		// Display text
-		else if(!strcmp(argv[1], "text")) {
+		else if (!strcmp(argv[1], "text")) {
 			while (1) {
 				DisplayText("./tmp/message.txt", grid);
+			}
+		}
+		else if (!strcmp(argv[1], "frame")) {
+			while (1) {
+				DisplayFrame(grid);
 			}
 		}
 

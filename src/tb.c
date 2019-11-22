@@ -370,7 +370,7 @@ void TestAutoConfigure() {
 	}
 
 	for (int i = 0; i < 2; i++) {
-		input = FindNeighborData(channels[i]);
+		input = FindNeighborData(channels[i], 10);
 		PrintNeighbors(input);
 		InsertDisplay(list, CreateDisplay(input));
 		free(input);

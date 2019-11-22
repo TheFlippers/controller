@@ -1,5 +1,7 @@
 #include "fdd.h"
 
+uint8_t channels[2] = {BCM2835_SPI_CS0, BCM2835_SPI_CS1};
+
 void ConfigureFDD(char* filename) {
 
 	uint8_t channels[2] = {BCM2835_SPI_CS0, BCM2835_SPI_CS1};
@@ -16,9 +18,18 @@ void ConfigureFDD(char* filename) {
 		SendDisplayID(channels[i], i + 1);
 	}
 
+	// Wait for displays to detect neighbors
+	sleep(CONFIG_DELAY);
+
 	// Accquire neighbor information from displays
 	for (int i = 0; i < 2; i++) {
-		input = FindNeighborData(channels[i]);
+		input = FindNeighborData(channels[i], 1000);
+		if (input == NULL) {
+			fprintf(stderr, "ERROR: Could not configure display!\n");
+			FreeList(list);
+			return;
+		}
+		PrintNeighbors(input);
 		InsertDisplay(list, CreateDisplay(input));
 		free(input);
 	}
@@ -34,7 +45,7 @@ void ConfigureFDD(char* filename) {
 	FreeDisplayGrid(screen);
 }
 
-void DisplayFrames(char* filename, DisplayGrid* grid) {
+void DisplayImages(char* filename, DisplayGrid* grid) {
 
 	FILE* fp = NULL;
     char* line = NULL;
@@ -43,7 +54,6 @@ void DisplayFrames(char* filename, DisplayGrid* grid) {
 	int num_frames = 0;
 	char frame[25] = "";
 	Image* image = NULL;
-	uint8_t channels[2] = {BCM2835_SPI_CS0, BCM2835_SPI_CS1};
 	char* buf = NULL;
 
 	// Open file for reading
@@ -75,7 +85,7 @@ void DisplayFrames(char* filename, DisplayGrid* grid) {
 		for (int y = 0; y < grid->height; y++) {
 			for (int x = 0; x < grid->width; x++) {
 					buf = ImageToDisplayPixels(image, grid->width, grid->height, x, y);
-					SendPixelData(channels[grid->dispIds[x][y] - 1], buf, 7);
+					SendPixelData(channels[grid->dispIds[x][y] - 1], buf, MODULE_SIZE);
 					free(buf);
 			}
 		}
@@ -133,7 +143,7 @@ void DisplayText(char* filename, DisplayGrid* grid) {
 			/* VertMirrorDisplay(buf); */
 
 			// Transmit pixels
-			SendPixelData(BCM2835_SPI_CS0, buf, CHAR_HEIGHT);
+			SendPixelData(channels[grid->dispIds[x][0]], buf, MODULE_SIZE);
 		}
 
 		// Wait for next frame
@@ -143,6 +153,38 @@ void DisplayText(char* filename, DisplayGrid* grid) {
 	// Memory clean-up
 	FreeMessage(&msg);
 	free(text);
+}
+
+void DisplayFrame(DisplayGrid* grid) {
+
+	int x = 0;
+	int y = 0;
+	char input[200] = "";
+	char* token = NULL;
+	char buf[7] = {0};
+
+	// Read input to parse for frame data
+	fgets(input, 200, stdin);
+
+	// Separate input string for parsing
+	token = strtok(input, " ");
+	while (token != NULL) {
+		
+		// Scan for display coordinates
+		sscanf(token, "(%d,%d)", &x, &y);
+
+		// Read bytes into buffer row-wise
+		for (int i = 0; i < MODULE_SIZE; i++) {
+			token = strtok(NULL, " ");
+			sscanf(token, "%hx", buf + i);
+		}
+
+		// Transmit pixels
+		SendPixelData(channels[grid->dispIds[x][y]], buf, MODULE_SIZE);
+
+		// Scan next display grid
+		token = strtok(NULL, " ");
+	}
 }
 
 void MirrorDisplay(char* pixels) {
@@ -178,23 +220,5 @@ void HorizMirrorDisplay(char* pixels) {
 		pixels[y] = pixels[MODULE_SIZE - y];
 		pixels[MODULE_SIZE - y] = tmp;
 	}
-
-}
-
-// TODO: finish rotation code
-void RotateClockwise(char* pixels) {
-
-	char tmp[7] = {0};
-
-	// Perform transformation on temporary buffer
-	for (int i = 0; i < MODULE_SIZE; i++) {
-		for(int j = 0; j < MODULE_SIZE; j++) {
-
-		}
-	}
-
-
-	// overwrite pixels
-	memcpy(pixels, tmp, MODULE_SIZE);
 
 }
