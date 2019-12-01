@@ -151,7 +151,6 @@ int TextToPixels(char* text, Message* msg) {
 			memcpy(msg->letters[i].pixels, font[text[i] - FONT_OFFSET], CHAR_HEIGHT);
 		}
 	}
-	printf("len: %d\n", msg->len);
 	
 	return 0;
 }

@@ -30,7 +30,9 @@ void ConfigureFDD(char* filename) {
 			return;
 		}
 		PrintNeighbors(input);
-		InsertDisplay(list, CreateDisplay(input));
+		if (input->id != 0) {
+			InsertDisplay(list, CreateDisplay(input));
+		}
 		free(input);
 	}
 

@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 		// Display images
 		if (!strcmp(argv[1], "images")) {
 			while (1) {
-				DisplayImages("./tmp/num_frames", grid);
+				DisplayImages("./tmp/num_frames.txt", grid);
 			}
 		}
 		// Display text

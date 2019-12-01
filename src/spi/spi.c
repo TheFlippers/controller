@@ -79,6 +79,8 @@ void SendPixelData(uint8_t channel, char* pixels, size_t len) {
 
 	int bitCnt = 0;
 	uint8_t currNum = 0;
+	uint8_t tmp = 0;
+	uint8_t rev_tmp = 0;
 
 	// Select desired SPI slave channel
 	bcm2835_spi_chipSelect(channel);
@@ -94,7 +96,20 @@ void SendPixelData(uint8_t channel, char* pixels, size_t len) {
 			bitCnt++;
 		}
 		pixels[i] |= ((bitCnt + 1) % 2);
+
+		// Reverse order of pixel bytes
+		/*
+		for (int i = 0; i < 8; i++) {
+			tmp = (pixels[i] & (1 << i));
+			if (tmp) {
+				rev_tmp |= (1 << (7 - i));
+			}
+		}
+		pixels[i] = rev_tmp;
+		*/
 	}
+
+
 
 	// Send frame with header information
 	SendFrame(POST, POST_PIXEL_DATA, pixels, len);
@@ -154,10 +169,5 @@ Neighbors* FindNeighborData(uint8_t channel, int timeout) {
 		out->neighbors[SOUTH] = buf[5];
 	}
 
-	// Return output
-	if (pollCnt == timeout) {
-		free(out);
-		return NULL;
-	}
 	return out;
 }
