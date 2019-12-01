@@ -136,9 +136,7 @@ char* ImageToDisplayPixels(Image* image, int w, int h, int x, int y) {
 			buf[row] |= bit << col;
 			bitCnt += bit;
 		}
-		if (bitCnt % 2 == 0) {
-			buf[row] |= 1 << 7;
-		}
+		buf[row] <<= 1;
 	}
 
 	return buf;
