@@ -109,23 +109,25 @@ void PrintMessage(Message* msg) {
 	}
 }
 
-void TestSPITransfer(void) {
+void TestSPITransfer(int channel, int test) {
 
-	char buf[8] = {61, 62, 63, 64, 65, 66, 67, 68};
-	char* toRead = NULL;
+	char buf[4][8] = {{8, 7, 6, 5, 4, 3, 2, 1},
+						{1, 2, 3, 4, 5, 6, 7, 8},
+						{0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8},
+						{0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55}};
 
 	if (InitSPI() == 0) {
 		return;
 	}
 
 	printf("TX: ");
-	PrintArray(buf, 8);
+	PrintArray(buf[test], 8);
 
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
-	bcm2835_spi_transfern(buf, 8);
+	bcm2835_spi_transfern(buf[test], 8);
 
 	printf("RX: ");
-	PrintArray(buf, 8);
+	PrintArray(buf[test], 8);
 
 	DeinitSPI();
 }

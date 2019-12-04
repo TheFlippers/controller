@@ -1,6 +1,10 @@
 TARGET_EXEC ?= fdd
 
-LIBS ?= wiringPi bcm2835 png
+DEST ?= /var/www/html/fdd
+USR ?= www-data
+GRP ?= www-data
+
+LIBS ?= wiringPi bcm2835 png pthread
 
 MKDIR_P ?= mkdir -p
 
@@ -29,3 +33,8 @@ clean:
 	$(RM) $(TARGET_EXEC)
 
 update: clean $(TARGET_EXEC)
+
+install: $(TARGET_EXEC)
+	cp $(TARGET_EXEC) $(DEST)
+	chown $(USR) $(DEST)
+	chgrp $(GRP) $(DEST)

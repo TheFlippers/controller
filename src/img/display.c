@@ -235,7 +235,7 @@ DisplayGrid* LoadDisplayGrid(char* filename) {
 	// Read configuration file
     fp = fopen(filename, "r");
     if (fp == NULL) {
-		fprintf(stderr, "ERROR: Could not open file for reading!\n");
+		fprintf(stderr, "ERROR: Could not open file for reading: %s!\n, filename");
 		return NULL;
 	}
 

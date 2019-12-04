@@ -15,49 +15,25 @@
 
 int main(int argc, char* argv[]) {
 	
+	// Initialize SPI drivers
 	InitSPI();
 
-	// Run configurations to find display size
-	if (argc >= 2 && !strcmp(argv[1], "config")) {
+	// Testcases
+	/*
+	int channel = atoi(argv[1]);
+	SendDisplayID(channel, 69);
+	FindNeighborData(channel, 10);
+	*/
 
-		// Configure display using SPI serial communication
-		ConfigureFDD("fdd_conf");
-	}
-	// Run main execution loop
-	else if (argc >= 2) {
-		
-		// Read grid from config file
-		DisplayGrid* grid = NULL;
-		grid = LoadDisplayGrid("fdd_conf");
-		if (grid == NULL) {
-			fprintf(stderr, "ERROR: Could not load display configuration!\n");
-			DeinitSPI();
-			return EXIT_FAILURE;
-		}
+	//TestSPITransfer(0);
+	//TestSPITransfer(atoi(argv[1]), atoi(argv[2]));
 
-		// Display images
-		if (!strcmp(argv[1], "images")) {
-			while (1) {
-				DisplayImages("./tmp/num_frames.txt", grid);
-			}
-		}
-		// Display text
-		else if (!strcmp(argv[1], "text")) {
-			while (1) {
-				DisplayText("./tmp/message.txt", grid);
-			}
-		}
-		else if (!strcmp(argv[1], "frame")) {
-			while (1) {
-				DisplayFrame(grid);
-			}
-		}
+	// Operate flip disk display
+	RunFDD();
 
-		// Memory clean-up
-		FreeDisplayGrid(grid);
-	}
-
+	// Deinitialize SPI drivers
 	DeinitSPI();
+
 
     return EXIT_SUCCESS;
 }

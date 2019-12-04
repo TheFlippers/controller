@@ -17,7 +17,9 @@ int InitSPI() {
 	// Set SPI parameters
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);
-    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_128);
+    //bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_2048);
+    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_1024);
+    //bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_128);
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS1, LOW);
 
@@ -69,7 +71,6 @@ int SendFrame(int gpBit, uint8_t pid, char *data, size_t len) {
 
 	// Copy reponse to buffer
 	memcpy(data, buf, FRAME_LEN);
-
 	free(buf);
 
 	return 0;
@@ -138,7 +139,7 @@ Neighbors* FindNeighborData(uint8_t channel, int timeout) {
 	while (out->id == 0 && pollCnt < timeout) {
 
 		// Send get request to slave and read response
-		SendFrame(GET, GET_NEIGHBOR_DATA, buf, 0);
+		SendFrame(POST, POST_PIXEL_DATA, buf, 1);
 		pollCnt++;
 
 		// Check header for correct frame type

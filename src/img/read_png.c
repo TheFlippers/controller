@@ -10,9 +10,11 @@ Image* ReadPNGFile(char* filename) {
 	Image* image = NULL;
 	png_bytep *row_pointers = NULL;
 
+	printf("Opening PNG\n");
 	// Read file
 	fp = fopen(filename, "rb");
 
+	printf("1\n");
 	// Read png data
 	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png) {
@@ -21,6 +23,7 @@ Image* ReadPNGFile(char* filename) {
 		return NULL;
 	}
 
+	printf("2\n");
 	// Read png info
 	info = png_create_info_struct(png);
 	if (!info) {
@@ -30,16 +33,19 @@ Image* ReadPNGFile(char* filename) {
 		return NULL;
 	}
 
+	printf("3\n");
 	// Initialize png structures
 	png_init_io(png, fp);
 	png_read_info(png, info);
 
+	printf("4\n");
 	// Get image parameters
 	width = png_get_image_width(png, info);
 	height = png_get_image_height(png, info);
 	color_type = png_get_color_type(png, info);
 	bit_depth = png_get_bit_depth(png, info);
 
+	printf("5\n");
 	// Check image parameters
 	if (width % MODULE_SIZE != 0 || height % MODULE_SIZE != 0) {
 		fprintf(stderr, "ERROR: Incorrect png dimensions!\n");
@@ -54,9 +60,11 @@ Image* ReadPNGFile(char* filename) {
 		return NULL;
 	}
 
+	printf("6\n");
 	// Convert png data to readable format
 	png_set_expand_gray_1_2_4_to_8(png);
 
+	printf("7\n");
 	// Allocate memory for image rows
 	row_pointers = malloc(sizeof(*row_pointers) * height);
 	if (row_pointers == NULL) {
@@ -66,6 +74,7 @@ Image* ReadPNGFile(char* filename) {
 		return NULL;
 	}
 
+	printf("8\n");
 	// Allocate memory for each column
 	for (int i = 0; i < height; i++) {
 		row_pointers[i] = malloc(png_get_rowbytes(png, info));
@@ -82,9 +91,10 @@ Image* ReadPNGFile(char* filename) {
 	}
 
 	// Read image
+	printf("9\n");
 	png_read_image(png, row_pointers);
 
-
+	printf("10\n");
 	// Save image data
 	image = malloc(sizeof(*image));
 	if (image == NULL) {
@@ -101,9 +111,10 @@ Image* ReadPNGFile(char* filename) {
 	image->height = height;
 	image->bytes = row_pointers;
 	
+	printf("11\n");
 	// Cleanup
 	fclose(fp);
-	png_destroy_read_struct(&png, &info, NULL);
+	//png_destroy_read_struct(&png, &info, NULL);
 
 	return image;
 }

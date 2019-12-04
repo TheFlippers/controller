@@ -21,7 +21,7 @@ void PrintPixels(char* pixels);
 void PrintImage(Image* image);
 void PrintMessage(Message* msg);
 
-void TestSPITransfer(void);
+void TestSPITransfer(int channel, int test);
 void TestSPISend(void);
 void TestGetNeighbors(void);
 void TestSendDisplayID(void);

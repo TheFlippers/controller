@@ -106,7 +106,7 @@ char* ReadTXTFile(char* filename) {
 	// Open an existing file for reading
 	fp = fopen(filename, "r");
 	if(fp == NULL) {
-		fprintf(stderr, "ERROR: Could not open file for reading!\n");
+		fprintf(stderr, "ERROR: Could not open file for reading: %s\n!\n", filename);
 		return NULL;
 	}
 	 
